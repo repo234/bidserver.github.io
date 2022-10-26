@@ -13,9 +13,12 @@ var productSchema = mongoose.Schema({
   },
   discription: String,
   condition: String,
+  productPics: [{ img: { type: String } }],
+  reviews: [
+    { type: mongoose.Schema.Types.ObjectId, ref: "User", review: String },
+  ],
   sellerId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-  catrgoryId: { type: mongoose.Schema.Types.ObjectId, ref: "Category" },
-  adminId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+  categoryName: String,
 });
 var Product = mongoose.model("Product", productSchema);
 function validateProduct(data) {
@@ -26,6 +29,7 @@ function validateProduct(data) {
     bidDuration: Joi.number().integer().min(1).max(7).required(),
     discription: Joi.string().required(),
     condition: Joi.string().required(),
+    categoryName: Joi.string().required(),
   });
   return schema.validate(data, { abortEarly: false });
 }
