@@ -20,11 +20,15 @@ router.post("/create", auth, isadmin, async (req, res) => {
   }
 });
 
-router.get("/getAll", async (req, res) => {
+//get all categories
+router.get("/", async (req, res) => {
   Category.find({}).exec((error, categories) => {
     if (error) return res.status(400).json({ error });
     if (categories) {
-      res.status(200).json({ categories });
+      res.json(categories);
+    }
+    if (!categories) {
+      res.json("no category found");
     }
   });
 });

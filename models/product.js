@@ -4,32 +4,43 @@ const Joi = require("@hapi/joi");
 var productSchema = mongoose.Schema({
   name: String,
   price: Number,
+  currentPrice: Number,
   quantity: Number,
-  active: { type: Boolean, default: true },
-  bidDuration: Number,
+  time: Number,
   createdDate: {
     type: Date,
-    default: Date.now,
+    default: Date.now(),
   },
   discription: String,
   condition: String,
-  productPics: [{ img: { type: String } }],
-  reviews: [
-    { type: mongoose.Schema.Types.ObjectId, ref: "User", review: String },
-  ],
+  images: [{ img: String }],
   sellerId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-  categoryName: String,
+  categoryId: { type: mongoose.Schema.Types.ObjectId, ref: "Category" },
+  duration: {
+    type: Number,
+  },
+  bids: [
+    {
+      userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+      bidAmount: Number,
+      bidTime: Date,
+    },
+  ],
+  currentPrice: Number,
+  winner: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
 });
 var Product = mongoose.model("Product", productSchema);
 function validateProduct(data) {
   const schema = Joi.object({
-    name: Joi.string().min(3).max(20).required(),
-    price: Joi.number().integer().min(0).max(50000).required(),
+    name: Joi.string().min(3).max(100).required(),
+    price: Joi.number().integer().min(1).max(50000).required(),
     quantity: Joi.number().integer().required(),
-    bidDuration: Joi.number().integer().min(1).max(7).required(),
+    time: Joi.number().integer().min(1).max(4320).required(),
     discription: Joi.string().required(),
     condition: Joi.string().required(),
-    categoryName: Joi.string().required(),
+    categoryId: Joi.string().required(),
+    duration: Joi.number(),
+    currentPrice: Joi.number(),
   });
   return schema.validate(data, { abortEarly: false });
 }

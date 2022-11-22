@@ -4,7 +4,8 @@ var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 var mongoose = require("mongoose");
-var config = require("config");
+var app = express();
+
 const env = require("dotenv");
 
 var indexRouter = require("./routes/index");
@@ -13,7 +14,7 @@ var categoriesRouter = require("./routes/api/categories");
 var productsRouter = require("./routes/api/products");
 
 env.config();
-var app = express();
+
 const DB = `mongodb+srv://parsa123:${process.env.DB_PASSWORD}@cluster0.mcthebl.mongodb.net/${process.env.DB_DATABASE}?retryWrites=true&w=majority`;
 
 // view engine setup
@@ -22,9 +23,10 @@ app.set("view engine", "jade");
 
 app.use(logger("dev"));
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
+app.use("/uploads", express.static("uploads"));
 
 app.use("/", indexRouter);
 app.use("/api/users", usersRouter);
@@ -55,5 +57,5 @@ mongoose
   })
   .then(() => console.log("Connected to Mongo...."))
   .catch((error) => console.log(error.message));
-
+console.log(new Date());
 module.exports = app;

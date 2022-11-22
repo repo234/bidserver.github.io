@@ -9,6 +9,7 @@ var userSchema = mongoose.Schema({
     type: String,
     enum: ["customer", "seller", "admin"],
   },
+
   terms: Boolean,
   createdAt: {
     type: Date,
