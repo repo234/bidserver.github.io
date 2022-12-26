@@ -9,7 +9,7 @@ exports.auth = (req, res, next) => {
     let user = jwt.verify(token, config.get("jwtPrivateKey"));
     req.user = user;
   } catch (err) {
-    return res.status(401).send("Invalid Token");
+    return res.send("You are not logged in");
   }
   next();
 };

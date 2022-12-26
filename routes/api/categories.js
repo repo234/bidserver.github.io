@@ -3,6 +3,8 @@ var router = express.Router();
 var { Category, validateCategory } = require("../../models/catrgory");
 var { auth } = require("../../middelware/auth");
 var { isadmin } = require("../../middelware/isadmin");
+
+//create category
 router.post("/create", auth, isadmin, async (req, res) => {
   console.log(req.user);
   let category = await Category.findOne({ name: req.body.name });
@@ -31,5 +33,15 @@ router.get("/", async (req, res) => {
       res.json("no category found");
     }
   });
+});
+// get category by id
+router.get("/:id", async (req, res) => {
+  let category = await Category.findById(req.params.id);
+  if (category) {
+    return res.json(category);
+  }
+  if (!category) {
+    return res.json("no category found");
+  }
 });
 module.exports = router;
