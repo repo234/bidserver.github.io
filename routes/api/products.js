@@ -148,12 +148,11 @@ router.patch("/active/:id", async (req, res) => {
       duration: duration,
       auctionId: auction._id,
     });
-    io.getIo().emit("addAd", "new products arrived");
+
     res.send("product activated");
   } catch (err) {
-    return res.status(400).json({
-      err,
-    });
+    console.log(err);
+    return res.status(400).json(err);
   }
 });
 

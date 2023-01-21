@@ -4,8 +4,10 @@ var { Auction } = require("../../models/auction");
 var { auth } = require("../../middelware/auth");
 var { isuser } = require("../../middelware/isuser");
 var { Product } = require("../../models/product");
+var { BidHistory } = require("../../models/bidhistory");
 var { User } = require("../../models/user");
 var { sendEmail } = require("../../utils/sendEmail");
+
 const io = require("../../socket");
 
 //create auction
@@ -44,13 +46,13 @@ router.get("/auction/:id", async (req, res) => {
   }
 });
 //auction ended
-router.patch("/end/:id", auth, async (req, res) => {
+router.patch("/end/:id", async (req, res) => {
   try {
     const auction = await Auction.findById(req.params.id);
     const product = await Product.findById(auction.productId);
     const users = await User.find({});
-
     const notification = [];
+
     auction.bids.forEach((bid) => {
       users.forEach((user) => {
         if (JSON.stringify(bid.userId) == JSON.stringify(user._id)) {
@@ -85,12 +87,14 @@ router.patch("/end/:id", auth, async (req, res) => {
     notification.forEach((notify) => {
       sendEmail(notify.email, "Bidbazaar - your bid details ", notify.html);
     });
-  } catch (error) {}
 
-  let result = await Auction.findByIdAndUpdate(req.params.id, {
-    endAuction: true,
-  });
-  res.send("auction ended");
+    let result = await Auction.findByIdAndUpdate(req.params.id, {
+      endAuction: true,
+    });
+    res.send("auction ended");
+  } catch (error) {
+    console.log(error);
+  }
 });
 //add bid
 router.put("/bid/:id", auth, isuser, async (req, res) => {
@@ -126,6 +130,7 @@ router.put("/bid/:id", auth, isuser, async (req, res) => {
           auction,
         };
         io.getIo().in().emit("newbid", data);
+
         const notification = [];
         auction.bids.forEach((bid) => {
           users.forEach((user) => {
@@ -156,6 +161,50 @@ router.put("/bid/:id", auth, isuser, async (req, res) => {
     }
   } catch (error) {
     res.status(400).send(error);
+  }
+});
+
+//user bid history
+router.get("/inprogresshistory/:id", async (req, res) => {
+  try {
+    let data = await Auction.aggregate([
+      {
+        $lookup: {
+          from: "products",
+          localField: "productId",
+          foreignField: "_id",
+          as: "productdetail",
+        },
+      },
+    ]);
+    let userAuctions = [];
+    data.forEach((auction) => {
+      auction.bids.forEach((bid) => {
+        if (
+          JSON.stringify(bid.userId) === JSON.stringify(req.params.id) &&
+          auction.endAuction == false
+        ) {
+          userAuctions.push({
+            auctionId: auction._id,
+            productId: auction.productdetail[0]._id,
+            productImg: auction.productdetail[0].images[0],
+            categoryId: auction.productdetail[0].categoryId,
+            productName: auction.productdetail[0].name,
+            myprice: bid.bidAmount,
+            highestPrice: auction.currentPrice,
+            totalBids: auction.bids.length,
+            auctioned: "in progress",
+            status: "-",
+          });
+        }
+      });
+    });
+
+    console.log(userAuctions);
+    res.send(userAuctions.reverse());
+  } catch (error) {
+    res.send(error);
+    console.log(error);
   }
 });
 

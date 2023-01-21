@@ -21,7 +21,7 @@ const auctionSchema = new mongoose.Schema({
   },
   productId: {
     type: mongoose.Schema.ObjectId,
-    ref: "User",
+    ref: "Product",
   },
   winner: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   currentPrice: Number,
