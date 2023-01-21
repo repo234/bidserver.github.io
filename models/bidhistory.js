@@ -10,7 +10,7 @@ var bidHistorySchema = mongoose.Schema({
   paymentStatus: String,
   auctionId: { type: mongoose.Schema.Types.ObjectId, ref: "Auction" },
   userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-  createdDate: {
+  winningDate: {
     type: Date,
     default: Date.now(),
   },
