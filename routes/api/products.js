@@ -46,6 +46,7 @@ router.post(
       product.price = req.body.price;
       product.quantity = req.body.quantity;
       product.time = req.body.time;
+      product.weight = req.body.weight;
       product.createdDate;
       product.discription = req.body.discription;
       product.condition = req.body.condition;

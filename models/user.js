@@ -16,7 +16,7 @@ var userSchema = mongoose.Schema({
   },
 
   terms: Boolean,
-
+  resetPass: String,
   createdAt: {
     type: Date,
     default: Date.now,
@@ -36,6 +36,7 @@ function validateUser(data) {
     role: Joi.string(),
     emailVarified: Joi.string(),
     terms: Joi.boolean().required(),
+    resetPass: Joi.string(),
   });
   return schema.validate(data, { abortEarly: false });
 }

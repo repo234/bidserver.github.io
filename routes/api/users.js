@@ -149,6 +149,83 @@ router.post("/login", async (req, res) => {
   });
 });
 
+//reset password
+router.post("/resetPasswordlink", async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    res.json({ message: "Enter Your Email" });
+  }
+  try {
+    let user = await User.findOne({ email: email });
+    const token = jwt.sign({ _id: user._id }, config.get("jwtPrivateKey"), {
+      expiresIn: "120s",
+    });
+    const setusertoken = await User.findByIdAndUpdate(
+      { _id: user._id },
+      { resetPass: token },
+      { new: true }
+    );
+
+    if (setusertoken) {
+      const html = `This Link Valid For 2 MINUTES http://localhost:3001/forgotpassword/${user.id}/${setusertoken.resetPass}`;
+      await sendEmail(user.email, "Bidbazaar - verify your email", html);
+      res
+        .status(201)
+        .json({ message: "An Email sent to your account please verify" });
+    }
+  } catch (error) {
+    res.status(401).json({ message: "invalid user" });
+  }
+});
+
+//valid user
+router.get("/forgotpassword/:id/:token", async (req, res) => {
+  const { id, token } = req.params;
+  try {
+    const validuser = await User.findOne({ _id: id, resetPass: token });
+
+    const verifyToken = jwt.verify(token, config.get("jwtPrivateKey"));
+    if (validuser && verifyToken._id) {
+      res.status(201).json({ status: 201, validuser });
+    } else {
+      res.status(401).json({ status: 401, message: "user not exist" });
+    }
+  } catch (error) {
+    res.status(401).json({ status: 401, error });
+  }
+});
+//set password
+router.post("/:id/:token", async (req, res) => {
+  const { id, token } = req.params;
+
+  const { password } = req.body;
+
+  try {
+    const validuser = await User.findOne({ _id: id, resetPass: token });
+
+    const verifyToken = jwt.verify(token, config.get("jwtPrivateKey"));
+
+    if (validuser && verifyToken._id) {
+      const salt = await bcrypt.genSalt(10);
+      const newpassword = await bcrypt.hash(password, salt);
+
+      const setnewuserpass = await User.findByIdAndUpdate(
+        { _id: id },
+        { password: newpassword }
+      );
+
+      setnewuserpass.save();
+      res
+        .status(201)
+        .json({ status: 201, message: "password updated successfully" });
+    } else {
+      res.status(401).json({ status: 401, message: "user not exist" });
+    }
+  } catch (error) {
+    res.status(400).json({ status: 400, error });
+  }
+});
 //get all sellers
 router.get("/sellers", async (req, res) => {
   let users = await User.find({ role: "seller" });
