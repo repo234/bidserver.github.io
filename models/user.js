@@ -8,7 +8,7 @@ var userSchema = mongoose.Schema({
   city: String,
   province: String,
   address: String,
-  postal: String,
+
   mobile: String,
   emailVarified: Boolean,
   role: {
@@ -31,7 +31,7 @@ function validateUser(data) {
     province: Joi.string().required(),
     city: Joi.string().required(),
     address: Joi.string().required(),
-    postal: Joi.string().required(),
+
     mobile: Joi.string().required(),
     role: Joi.string(),
     emailVarified: Joi.string(),

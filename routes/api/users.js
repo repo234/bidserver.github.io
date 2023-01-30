@@ -26,7 +26,7 @@ router.post("/register", async (req, res) => {
     user.city = req.body.city;
     user.province = req.body.province;
     user.address = req.body.address;
-    user.postal = req.body.postal;
+
     user.mobile = req.body.mobile;
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(req.body.password, salt);
@@ -45,55 +45,8 @@ router.post("/register", async (req, res) => {
     res
       .status(201)
       .send({ message: "An Email sent to your account please verify" });
-
-    /* var mailOptions = {
-      from: "Verify your email <parsariaz123@gmail.com>",
-      to: req.body.email,
-      subject: "Bid bazaar - verify your email",
-      html: `<h2> ${user.name}! Thanks for registering on our site</h2>
-      <h4> Please verify your email to continue....</h4>
-      <a href="http://${req.headers.host}/api/users/verify-email?token=${user.emailToken}">Verify your email</a>`,
-    };
-    transporter.sendMail(mailOptions, (err, info) => {
-      if (err) {
-        console.log(err);
-      } else {
-        res.send(
-          "register successfully a verifcation email send to your gmail account"
-        );
-      }
-    });*/
   }
 });
-
-// mail
-/*var transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: "bidbazaar89@gmail.com",
-    pass: "cvowokcdrogrxlrw",
-  },
-  tls: {
-    rejectUnauthorized: false,
-  },
-});
-
-router.get("/verify-email", async (req, res) => {
-  try {
-    const user = await User.findOne({ _id: req.params.id });
-    if (!user) return res.status(400).send({ message: "Invalid link" });
-
-    const token = user.emailToken;
-    if (!token) return res.status(400).send({ message: "Invalid link" });
-
-    await User.updateOne({ emailToken: null, emailVarified: true });
-    await token.remove();
-
-    res.status(200).send({ message: "Email verified successfully" });
-  } catch (error) {
-    res.status(500).send({ message: "Internal Server Error" });
-  }
-});*/
 
 router.get("/:id/verify/:token/", async (req, res) => {
   try {
