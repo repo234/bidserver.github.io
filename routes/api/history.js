@@ -321,4 +321,22 @@ router.put("/bidhistory/end", async (req, res) => {
   }
 });
 
+router.put("/bidhistory/expired/:id", async (req, res) => {
+  try {
+    const history = await BidHistory.findOneAndUpdate(
+      {
+        _id: req.params.id,
+      },
+      {
+        paymentStatus: "expired",
+      }
+    );
+
+    res.json("expired");
+  } catch (error) {
+    res.status(400).send(error);
+    console.log(error);
+  }
+});
+
 module.exports = router;
