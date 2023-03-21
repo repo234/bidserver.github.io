@@ -44,4 +44,15 @@ router.get("/:id", async (req, res) => {
     return res.json("no category found");
   }
 });
+
+router.put("/:id", async (req, res) => {
+  let category = await Category.findByIdAndUpdate(
+    { _id: req.params.id },
+    {
+      name: req.body.name,
+      createdAt: Date.now(),
+    }
+  );
+  res.send("created");
+});
 module.exports = router;
